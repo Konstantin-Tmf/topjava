@@ -31,37 +31,24 @@ public class UserMealsUtil {
         Map<LocalDate, Integer> sumOfCaloriesByDate = new HashMap<>();
 
         for (UserMeal meal : meals) {
-
             LocalDate date = meal.getDateTime().toLocalDate();
             int calories = meal.getCalories();
-
-            Integer sumOfCalories = sumOfCaloriesByDate.get(date);
-            if (sumOfCalories == null) {
-                sumOfCalories = 0;
-            }
-
+            Integer sumOfCalories = sumOfCaloriesByDate.getOrDefault(date, 0);
             sumOfCaloriesByDate.put(date, sumOfCalories + calories);
-
         }
 
         List<UserMealWithExcess> filteredMeals = new ArrayList<>();
 
         for (UserMeal meal : meals) {
-
             LocalDateTime dateTime = meal.getDateTime();
-            LocalTime time = meal.getDateTime().toLocalTime();
 
-            if (!time.isBefore(startTime) && !time.isAfter(endTime)) {
-                continue;
+            if (TimeUtil.isBetweenHalfOpen(dateTime.toLocalTime(), startTime, endTime)) {
+                int daySum = sumOfCaloriesByDate.get(dateTime.toLocalDate());
+                boolean excess = daySum > caloriesPerDay;
+
+                filteredMeals.add(new UserMealWithExcess(dateTime, meal.getDescription(), meal.getCalories(), excess));
+
             }
-
-            LocalDate date = dateTime.toLocalDate();
-            int daySum = sumOfCaloriesByDate.get(date);
-            boolean excess = daySum > caloriesPerDay;
-
-
-            filteredMeals.add(new UserMealWithExcess(dateTime, meal.getDescription(), meal.getCalories(), excess));
-
 
         }
         return filteredMeals;
