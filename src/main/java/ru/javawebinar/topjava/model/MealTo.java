@@ -1,12 +1,8 @@
 package ru.javawebinar.topjava.model;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class MealTo {
-
-    private static final DateTimeFormatter DATE_TIME_FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final LocalDateTime dateTime;
 
@@ -37,10 +33,6 @@ public class MealTo {
 
     public boolean isExcess() {
         return excess;
-    }
-
-    public String getDateTimeFormatted() {
-        return DATE_TIME_FORMATTER.format(dateTime);
     }
 
     @Override
