@@ -15,18 +15,20 @@ public class InMemoryMealRepository implements MealRepository {
     private final AtomicInteger counter = new AtomicInteger(0);
 
     {
-        int defaultUserId = 1;
-        MealsUtil.meals.forEach(meal -> save(meal, defaultUserId));
+        int user1 = 1;
+        int user2 = 2;
+
+        MealsUtil.meals.forEach(meal -> save(new Meal(meal.getDateTime(), meal.getDescription(), meal.getCalories()), user1)
+        );
+
+        MealsUtil.meals.forEach(meal -> save(new Meal(meal.getDateTime(), meal.getDescription(), meal.getCalories()), user2)
+        );
     }
 
     @Override
     public Meal save(Meal meal, int userId) {
-        if (meal == null) {
-            return null;
-        }
-
+        Objects.requireNonNull(meal, "meal must not be null");
         Map<Integer, Meal> userMeals = storage.computeIfAbsent(userId, uid -> new ConcurrentHashMap<>());
-
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             userMeals.put(meal.getId(), meal);
@@ -38,31 +40,23 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public boolean delete(int id, int userId) {
         Map<Integer, Meal> userMeals = storage.get(userId);
-        if (userMeals == null) {
-            return false;
-        }
         return userMeals.remove(id) != null;
     }
 
     @Override
     public Meal get(int id, int userId) {
         Map<Integer, Meal> userMeals = storage.get(userId);
-        if (userMeals == null) {
-            return null;
-        }
-        return userMeals.get(id);
+        return userMeals == null ? null : userMeals.get(id);
     }
 
     @Override
-    public Collection<Meal> getAll(int userId) {
+    public List<Meal> getAll(int userId) {
         Map<Integer, Meal> userMeals = storage.get(userId);
-
         if (userMeals == null) {
-            return List.of();
+            return Collections.emptyList();
         }
         List<Meal> list = new ArrayList<>(userMeals.values());
         list.sort(Comparator.comparing(Meal::getDateTime).reversed());
-
         return list;
     }
 }

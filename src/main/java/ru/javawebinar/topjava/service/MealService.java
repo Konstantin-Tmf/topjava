@@ -3,9 +3,9 @@ package ru.javawebinar.topjava.service;
 import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
-import java.util.Collection;
+import java.util.List;
 
 @Service
 public class MealService {
@@ -17,14 +17,10 @@ public class MealService {
     }
 
     public Meal get(int id, int userId) {
-        Meal meal = repository.get(id, userId);
-        if (meal == null) {
-            throw new NotFoundException("Meal not found id=" + id);
-        }
-        return meal;
+        return ValidationUtil.checkNotFound(repository.get(id, userId), "id" + id + ", userId" + userId);
     }
 
-    public Collection<Meal> getAll(int userId) {
+    public List<Meal> getAll(int userId) {
         return repository.getAll(userId);
     }
 
@@ -33,16 +29,10 @@ public class MealService {
     }
 
     public void update(Meal meal, int userId) {
-        Meal updated = repository.save(meal, userId);
-        if (updated == null) {
-            throw new NotFoundException("Meal not found id=" + meal.getId() + ", userId=" + userId);
-        }
+        ValidationUtil.checkNotFound(repository.save(meal, userId), "id" + meal.getId() + ", userId" + userId);
     }
 
     public void delete(int id, int userId) {
-        boolean deleted = repository.delete(id, userId);
-        if (!deleted) {
-            throw new NotFoundException("Meal not found id=" + id + ", userId=" + userId);
-        }
+        ValidationUtil.checkNotFound(repository.delete(id, userId), "id" + id + ", userId" + userId);
     }
 }
