@@ -5,6 +5,7 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,10 +19,10 @@ public class InMemoryMealRepository implements MealRepository {
         int user1 = 1;
         int user2 = 2;
 
-        MealsUtil.meals.forEach(meal -> save(new Meal(meal.getDateTime(), meal.getDescription(), meal.getCalories()), user1)
+        MealsUtil.meals.forEach(meal -> save(new Meal(meal.getDateTime(), "U1:" + meal.getDescription(), meal.getCalories()), user1)
         );
 
-        MealsUtil.meals.forEach(meal -> save(new Meal(meal.getDateTime(), meal.getDescription(), meal.getCalories()), user2)
+        MealsUtil.meals.forEach(meal -> save(new Meal(meal.getDateTime(), "U2: " + meal.getDescription(), meal.getCalories()), user2)
         );
     }
 
@@ -40,6 +41,9 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public boolean delete(int id, int userId) {
         Map<Integer, Meal> userMeals = storage.get(userId);
+        if (userMeals == null) {
+            return false;
+        }
         return userMeals.remove(id) != null;
     }
 
@@ -56,6 +60,25 @@ public class InMemoryMealRepository implements MealRepository {
             return Collections.emptyList();
         }
         List<Meal> list = new ArrayList<>(userMeals.values());
+        list.sort(Comparator.comparing(Meal::getDateTime).reversed());
+        return list;
+    }
+
+    @Override
+    public List<Meal> getBetween(LocalDate startDate, LocalDate endDate, int userId) {
+        Map<Integer, Meal> userMeals = storage.get(userId);
+        if (userMeals == null) {
+            return Collections.emptyList();
+        }
+
+        List<Meal> list = new ArrayList<>();
+        for (Meal meal : userMeals.values()) {
+            LocalDate date = meal.getDate();
+            if (!date.isBefore(startDate) && !date.isAfter(endDate)) {
+                list.add(meal);
+            }
+
+        }
         list.sort(Comparator.comparing(Meal::getDateTime).reversed());
         return list;
     }
