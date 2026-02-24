@@ -55,7 +55,7 @@
 - из тестов сервисов убрал `repository`. При проверке через `assertThrows` он не требуется
 - в `TestMatcher` сценарии сравнения сделал параметризируемыми (паттерн стратегия)
 - в API добавили `/users/{id}/with-meals` (см. [двунаправленные отношения](https://www.codeflow.site/ru/article/jackson-bidirectional-relationships-and-infinite-recursion))
-- добавил `UserTestData.USER_WITH_MEALS_MATCHER` (проверки пользователя сразу с едой) и константу id `NOT_FOUND`
+- добавил `ru.javawebinar.topjava.UserTestData.USER_WITH_MEALS_MATCHER` (проверки пользователя сразу с едой) и константу id `NOT_FOUND`
 
 ### TopJava 19
 - Изменилась логика для интервалов времени (исключаем `endTime`)
@@ -87,7 +87,7 @@
 - Тесты:
   - **Вместо очистки кэшей перед каждым тестом отключаем кэши для всех тестов**
   - **Вынес общий код тестирования контроллеров в `AbstractControllerTest`. Код тестов значительно сократился**
-  - **Сделал типизированный `TestMatchers<T>` для проверки результатов тестов. В классах `UserTestData` и `MealTestData` создаю его инстансы с заданным типом и методикой сравнения.**
+  - **Сделал типизированный `TestMatchers<T>` для проверки результатов тестов. В классах `ru.javawebinar.topjava.UserTestData` и `MealTestData` создаю его инстансы с заданным типом и методикой сравнения.**
   - В тестах `delete` и `create` проверяю результат напрямую (не через `getAll`)
 
 

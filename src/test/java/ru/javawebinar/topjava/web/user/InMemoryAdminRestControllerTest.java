@@ -13,7 +13,6 @@ import java.util.Arrays;
 import static ru.javawebinar.topjava.UserTestData.NOT_FOUND;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
 
-@Ignore
 public class InMemoryAdminRestControllerTest {
     private static final Logger log = LoggerFactory.getLogger(InMemoryAdminRestControllerTest.class);
 
@@ -23,6 +22,8 @@ public class InMemoryAdminRestControllerTest {
 
     @BeforeClass
     public static void beforeClass() {
+        System.setProperty("spring.profiles.active", "inmemory");
+
         appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
         log.info("\n{}\n", Arrays.toString(appCtx.getBeanDefinitionNames()));
         controller = appCtx.getBean(AdminRestController.class);
@@ -31,7 +32,10 @@ public class InMemoryAdminRestControllerTest {
 
     @AfterClass
     public static void afterClass() {
-        appCtx.close();
+        if (appCtx != null) {
+            appCtx.close();
+        }
+        System.clearProperty("spring.profiles.active");
     }
 
     @Before
