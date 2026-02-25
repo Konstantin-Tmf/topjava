@@ -1,4 +1,4 @@
-package ru.javawebinar.topjava.inmemory;
+package ru.javawebinar.topjava.repository.inmemory;
 
 import ru.javawebinar.topjava.model.AbstractBaseEntity;
 

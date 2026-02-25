@@ -13,8 +13,4 @@
 
     <context:component-scan base-package="ru.javawebinar.**.web"/>
 
-    <beans profile="inmemory">
-        <import resource="classpath:spring/inmemory-spring.xml"/>
-    </beans>
-
-</beans>
+ </beans>
