@@ -12,7 +12,6 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class MealServiceTest {
     @Test
     public void duplicateDateTimeCreate() {
         Meal duplicate = new Meal(null,
-                LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), // уже есть у USER
+                meal1.getDateTime(),
                 "Duplicate",
                 111);
 
@@ -89,7 +88,7 @@ public class MealServiceTest {
     public void update() {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
-        assertMatch(service.get(MEAL1_ID, USER_ID), updated);
+        assertMatch(service.get(MEAL1_ID, USER_ID), getUpdated());
     }
 
     @Test

@@ -67,7 +67,7 @@ public class MealTestData {
 
     public static Meal getUpdated() {
         return new Meal(MEAL1_ID,
-                meal1.getDateTime(),
+                LocalDateTime.of(2020, Month.JANUARY, 30, 11, 0),
                 "Обновленный завтрак",
                 700);
     }
