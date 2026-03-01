@@ -1,8 +1,13 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Ignore;
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,6 +19,9 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -26,11 +34,39 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
-@Ignore
 public class MealServiceTest {
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+
+    private static final Map<String, Long> timesNs = new LinkedHashMap<>();
+    private long startedAtNs;
+
+    @Rule
+    public TestWatcher timingRule = new TestWatcher() {
+        @Override
+        protected void starting(Description description) {
+            startedAtNs = System.nanoTime();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            long tookNs = System.nanoTime() - startedAtNs;
+            timesNs.put(description.getMethodName(), tookNs);
+
+            log.info("[TEST TIME] {} -> {} ms",
+                    description.getMethodName(),
+                    TimeUnit.NANOSECONDS.toMillis(tookNs));
+        }
+    };
 
     @Autowired
     private MealService service;
+
+    @AfterClass
+    public static void printTimingSummary() {
+        log.info("===== TEST TIME SUMMARY: {} =====", MealServiceTest.class.getSimpleName());
+        timesNs.forEach((name, ns) ->
+                log.info("{} -> {} ms", name, TimeUnit.NANOSECONDS.toMillis(ns)));
+    }
 
     @Test
     public void delete() {
