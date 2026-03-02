@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.repository.jpa;
 
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
@@ -33,8 +34,7 @@ public class JpaMealRepository implements MealRepository {
     @Transactional
     @Override
     public boolean delete(int id, int userId) {
-        int updated = em.createQuery(
-                        "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:userId")
+        int updated = em.createNamedQuery(Meal.DELETE)
                 .setParameter("id", id)
                 .setParameter("userId", userId)
                 .executeUpdate();
@@ -43,32 +43,25 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = em.createQuery(
-                        "SELECT m FROM Meal m WHERE m.id=:id AND m.user.id=:userId", Meal.class)
+        return DataAccessUtils.singleResult(em.createNamedQuery(Meal.GET, Meal.class)
                 .setParameter("id", id)
                 .setParameter("userId", userId)
-                .getResultList();
-
-        return meals.isEmpty() ? null : meals.get(0);
+                .getResultList());
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return em.createQuery(
-                        "SELECT m FROM Meal m WHERE m.user.id=:userId ORDER BY m.dateTime DESC", Meal.class)
+        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return em.createQuery("SELECT m FROM Meal m " +
-                                "WHERE m.user.id=:userId AND m.dateTime>=:start AND m.dateTime<:end " +
-                                "ORDER BY m.dateTime DESC",
-                        Meal.class)
+        return em.createNamedQuery(Meal.GET_BETWEEN_HALF_OPEN, Meal.class)
                 .setParameter("userId", userId)
-                .setParameter("start", startDateTime)
-                .setParameter("end", endDateTime)
+                .setParameter("startDateTime", startDateTime)
+                .setParameter("endDateTime", endDateTime)
                 .getResultList();
     }
 }

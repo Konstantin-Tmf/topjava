@@ -3,7 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -37,24 +37,16 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
 
-    private static final Map<String, Long> timesNs = new LinkedHashMap<>();
-    private long startedAtNs;
+    private static final Map<String, Long> testExecutionTimesNs = new LinkedHashMap<>();
 
     @Rule
-    public TestWatcher timingRule = new TestWatcher() {
+    public Stopwatch testStopwatch = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            startedAtNs = System.nanoTime();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            long tookNs = System.nanoTime() - startedAtNs;
-            timesNs.put(description.getMethodName(), tookNs);
-
+        protected void finished(long nanos, Description description) {
+            testExecutionTimesNs.put(description.getMethodName(), nanos);
             log.info("[TEST TIME] {} -> {} ms",
                     description.getMethodName(),
-                    TimeUnit.NANOSECONDS.toMillis(tookNs));
+                    TimeUnit.NANOSECONDS.toMillis(nanos));
         }
     };
 
@@ -63,9 +55,15 @@ public class MealServiceTest {
 
     @AfterClass
     public static void printTimingSummary() {
-        log.info("===== TEST TIME SUMMARY: {} =====", MealServiceTest.class.getSimpleName());
-        timesNs.forEach((name, ns) ->
-                log.info("{} -> {} ms", name, TimeUnit.NANOSECONDS.toMillis(ns)));
+        StringBuilder stringBuilder = new StringBuilder()
+                .append("\n===== TEST TIME SUMMARY: ")
+                .append(MealServiceTest.class.getSimpleName())
+                .append(" ====\n");
+
+        testExecutionTimesNs.forEach((name, ns) ->
+                stringBuilder.append(String.format("%-30s %d ms%n", name, TimeUnit.NANOSECONDS.toMillis(ns)))
+        );
+        log.info(stringBuilder.toString());
     }
 
     @Test
