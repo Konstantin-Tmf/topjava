@@ -29,7 +29,6 @@ public class InMemoryMealRepository implements MealRepository {
         usersMealsMap.put(UserTestData.USER_ID, userMeals);
     }
 
-
     @Override
     public Meal save(Meal meal, int userId) {
         Objects.requireNonNull(meal, "meal must not be null");
@@ -67,6 +66,11 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public List<Meal> getAll(int userId) {
         return filterByPredicate(userId, meal -> true);
+    }
+
+    @Override
+    public Meal getWithUser(int id, int userId) {
+        return get(id, userId);
     }
 
     private List<Meal> filterByPredicate(int userId, Predicate<Meal> filter) {
