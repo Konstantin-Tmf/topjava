@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.util.StringUtils;
+import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -28,7 +29,8 @@ public class MealServlet extends HttpServlet {
     @Override
     public void init() {
         GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
-        ctx.getEnvironment().setActiveProfiles("postgres", "jdbc");
+        ctx.getEnvironment().setActiveProfiles(Profiles.getActiveDbProfile(),
+                Profiles.REPOSITORY_IMPLEMENTATION);
         ctx.load("spring/spring-app.xml", "spring/spring-db.xml");
         ctx.refresh();
 

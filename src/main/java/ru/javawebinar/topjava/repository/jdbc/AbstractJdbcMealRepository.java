@@ -12,7 +12,14 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public abstract class AbstractJdbcMealRepository implements MealRepository {
+public abstract class AbstractJdbcMealRepository<T> implements MealRepository {
+
+    private static final RowMapper<Meal> ROW_MAPPER = (rs, rowNum) -> new Meal(
+            rs.getInt("id"),
+            rs.getTimestamp("date_time").toLocalDateTime(),
+            rs.getString("description"),
+            rs.getInt("calories")
+    );
 
     protected final JdbcTemplate jdbcTemplate;
     protected final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -26,9 +33,7 @@ public abstract class AbstractJdbcMealRepository implements MealRepository {
                 .usingGeneratedKeyColumns("id");
     }
 
-    protected abstract Object toDbDateTime(LocalDateTime dateTime);
-
-    protected abstract RowMapper<Meal> rowMapper();
+    protected abstract T toDbDateTime(LocalDateTime dateTime);
 
     @Override
     public Meal save(Meal meal, int userId) {
@@ -61,7 +66,7 @@ public abstract class AbstractJdbcMealRepository implements MealRepository {
     public Meal get(int id, int userId) {
         List<Meal> meals = jdbcTemplate.query(
                 "SELECT * FROM meal WHERE id = ? AND user_id = ?",
-                rowMapper(), id, userId);
+                ROW_MAPPER, id, userId);
         return DataAccessUtils.singleResult(meals);
     }
 
@@ -69,18 +74,13 @@ public abstract class AbstractJdbcMealRepository implements MealRepository {
     public List<Meal> getAll(int userId) {
         return jdbcTemplate.query(
                 "SELECT * FROM meal WHERE user_id=? ORDER BY date_time DESC",
-                rowMapper(), userId);
+                ROW_MAPPER, userId);
     }
 
     @Override
     public List<Meal> getBetweenHalfOpen(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
         return jdbcTemplate.query(
                 "SELECT * FROM meal WHERE user_id=? AND date_time >= ? AND date_time < ? ORDER BY date_time DESC",
-                rowMapper(), userId, toDbDateTime(startDateTime), toDbDateTime(endDateTime));
-    }
-
-    @Override
-    public Meal getWithUser(int id, int userId) {
-        return get(id, userId);
+                ROW_MAPPER, userId, toDbDateTime(startDateTime), toDbDateTime(endDateTime));
     }
 }

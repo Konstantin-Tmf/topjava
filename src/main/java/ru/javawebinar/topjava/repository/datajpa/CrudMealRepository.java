@@ -9,7 +9,6 @@ import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
     @Modifying
@@ -17,10 +16,15 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
     @Query("DELETE FROM Meal m WHERE m.id = :id AND m.user.id = :userId")
     int deleteByIdAndUserId(@Param("id") int id, @Param("userId") int userId);
 
-    Optional<Meal> findByIdAndUserId(int id, int userId);
+    @Transactional(readOnly = true)
+    @Query("SELECT m FROM Meal m WHERE m.id = :id AND m.user.id = :userId")
+    Meal findByIdAndUserId(@Param("id") int id, @Param("userId") int userId);
 
-    List<Meal> findAllByUserIdOrderByDateTimeDesc(int userId);
+    @Transactional(readOnly = true)
+    @Query("SELECT m FROM Meal m WHERE m.user.id = :userId ORDER BY m.dateTime DESC")
+    List<Meal> findAllByUserIdOrderByDateTimeDesc(@Param("userId") int userId);
 
+    @Transactional(readOnly = true)
     @Query("SELECT m FROM Meal m WHERE m.user.id = :userId " +
             "AND m.dateTime >= :startDateTime AND m.dateTime < :endDateTime " +
             "ORDER BY m.dateTime DESC")
@@ -28,6 +32,7 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
                                   @Param("endDateTime") LocalDateTime endDateTime,
                                   @Param("userId") int userId);
 
-    @Query("select m from Meal m join fetch m.user where m.id = :id and m.user.id = :userId")
-    Optional<Meal> getWithUser(@Param("id") int id, @Param("userId") int userId);
+    @Transactional(readOnly = true)
+    @Query("SELECT m FROM Meal m JOIN FETCH m.user WHERE m.id = :id AND m.user.id = :userId")
+    Meal getWithUser(@Param("id") int id, @Param("userId") int userId);
 }

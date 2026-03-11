@@ -68,17 +68,12 @@ public class InMemoryMealRepository implements MealRepository {
         return filterByPredicate(userId, meal -> true);
     }
 
-    @Override
-    public Meal getWithUser(int id, int userId) {
-        return get(id, userId);
-    }
-
     private List<Meal> filterByPredicate(int userId, Predicate<Meal> filter) {
         var meals = usersMealsMap.get(userId);
         return meals == null ? Collections.emptyList() :
                 meals.getCollection().stream()
-                        .filter(filter)
-                        .sorted(Comparator.comparing(Meal::getDateTime).reversed())
-                        .toList();
+                .filter(filter)
+                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
+                .toList();
     }
 }

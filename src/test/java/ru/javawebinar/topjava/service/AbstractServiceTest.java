@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractServiceTest {
-    protected static final Logger log = LoggerFactory.getLogger(AbstractServiceTest.class);
+    protected static final Logger log = LoggerFactory.getLogger("result");
 
     protected static StringBuilder results;
 
