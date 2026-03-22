@@ -13,10 +13,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.TimingRules;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ContextConfiguration({
-        "classpath:spring/spring-test.xml"
+        "classpath:spring/spring-test-app.xml",
+        "classpath:spring/spring-db.xml",
+        "classpath:spring/spring-test-db.xml"
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
@@ -31,8 +34,13 @@ public abstract class AbstractServiceTest {
 
     //  Check root cause with AssertJ: https://github.com/junit-team/junit-framework/issues/2129#issuecomment-565712630
     protected <T extends Throwable> void validateRootCause(Class<T> rootExceptionClass, Runnable runnable) {
-        assertThatExceptionOfType(Throwable.class)
+        Throwable throwable = assertThatExceptionOfType(Throwable.class)
                 .isThrownBy(runnable::run)
-                .withRootCauseInstanceOf(rootExceptionClass);
+                .actual();
+        Throwable cause = throwable;
+        while (cause != null && !rootExceptionClass.isInstance(cause)) {
+            cause = cause.getCause();
+        }
+        assertThat(cause).isInstanceOf(rootExceptionClass);
     }
 }

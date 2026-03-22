@@ -49,8 +49,6 @@ public class JspMealController extends AbstractMealController {
 
     @PostMapping
     public String save(HttpServletRequest request) throws Exception {
-        request.setCharacterEncoding("UTF-8");
-
         Meal meal = getMeal(request);
 
         if (StringUtils.hasLength(request.getParameter("id"))) {

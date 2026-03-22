@@ -3,14 +3,12 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<c:set var="titleCode" value="meal.title"/>
 <html>
-<head>
-    <title><spring:message code="meal.title"/></title>
-    <link rel="stylesheet" href="<c:url value='/resources/css/style.css'/>">
-</head>
+<jsp:include page="fragments/headTag.jsp"/>
 <body>
 <section>
-    <jsp:include page="fragments/mealHeader.jsp"/>
+    <jsp:include page="fragments/bodyHeader.jsp"/>
 
     <h2><spring:message code="meal.title"/></h2>
     <form method="get" action="meals/filter">
@@ -62,5 +60,6 @@
         </c:forEach>
     </table>
 </section>
+<jsp:include page="fragments/footer.jsp"/>
 </body>
 </html>

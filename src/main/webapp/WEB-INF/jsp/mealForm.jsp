@@ -2,26 +2,15 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+<c:set var="titleCode" value="meal.title"/>
 <html>
-<head>
-    <title><spring:message code="meal.title"/></title>
-    <link rel="stylesheet" href="<c:url value='/resources/css/style.css'/>">
-</head>
+<jsp:include page="fragments/headTag.jsp"/>
 <body>
 <section>
-    <jsp:include page="fragments/mealHeader.jsp"/>
+    <jsp:include page="fragments/bodyHeader.jsp"/>
 
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <h2>
-        <c:choose>
-            <c:when test="${meal.id == null}">
-                <spring:message code="meal.create"/>
-            </c:when>
-            <c:otherwise>
-                <spring:message code="meal.edit"/>
-            </c:otherwise>
-        </c:choose>
-    </h2>
+    <h2><spring:message code="${meal.id == null ? 'meal.create' : 'meal.edit'}"/></h2>
     <form method="post" action="<c:url value='/meals'/>">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
@@ -40,5 +29,6 @@
         <button onclick="window.history.back()" type="button"><spring:message code="common.cancel"/></button>
     </form>
 </section>
+<jsp:include page="fragments/footer.jsp"/>
 </body>
 </html>

@@ -58,73 +58,13 @@ public class JdbcUserRepository implements UserRepository {
                    registered=:registered, enabled=:enabled, calories_per_day=:caloriesPerDay WHERE id=:id
                 """, parameterSource) == 0) {
             return null;
+        } else {
+            jdbcTemplate.update(DELETE_ROLES, user.getId());
         }
 
-        jdbcTemplate.update(DELETE_ROLES, user.getId());
         insertRoles(user);
 
         return user;
-    }
-
-    @Override
-    @Transactional
-    public boolean delete(int id) {
-        return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) != 0;
-    }
-
-    @Override
-    public User get(int id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
-        User user = DataAccessUtils.singleResult(users);
-        if (user != null && user.getId() != null) {
-            user.setRoles(getRoles(user.getId()));
-        }
-        return user;
-    }
-
-    @Override
-    public User getByEmail(String email) {
-//        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
-        User user = DataAccessUtils.singleResult(users);
-        if (user != null && user.getId() != null) {
-            user.setRoles(getRoles(user.getId()));
-        }
-        return user;
-    }
-
-    @Override
-    public List<User> getAll() {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
-        Map<Integer, Set<Role>> rolesMap = getAllRolesMap();
-
-        for (User user : users) {
-            user.setRoles(rolesMap.getOrDefault(user.getId(), EnumSet.noneOf(Role.class)));
-        }
-
-        return users;
-    }
-
-    private Set<Role> getRoles(int userId) {
-        List<Role> roles = jdbcTemplate.query(
-                SELECT_ROLES_BY_USER_ID,
-                (rs, rowNum) -> Role.valueOf(rs.getString("role")),
-                userId
-        );
-        return roles.isEmpty() ? EnumSet.noneOf(Role.class) : EnumSet.copyOf(roles);
-    }
-
-    private Map<Integer, Set<Role>> getAllRolesMap() {
-        Map<Integer, Set<Role>> result = new HashMap<>();
-
-        jdbcTemplate.query(SELECT_ALL_ROLES, rs -> {
-            int userId = rs.getInt("user_id");
-            Role role = Role.valueOf(rs.getString("role"));
-
-            result.computeIfAbsent(userId, id -> EnumSet.noneOf(Role.class)).add(role);
-        });
-
-        return result;
     }
 
     private void insertRoles(User user) {
@@ -143,5 +83,66 @@ public class JdbcUserRepository implements UserRepository {
                     ps.setInt(2, user.getId());
                 }
         );
+    }
+
+    @Override
+    @Transactional
+    public boolean delete(int id) {
+        return jdbcTemplate.update("DELETE FROM users WHERE id=?", id) != 0;
+    }
+
+    @Override
+    public User get(int id) {
+        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE id=?", ROW_MAPPER, id);
+        User user = DataAccessUtils.singleResult(users);
+        if (user != null) {
+            user.setRoles(getRoles(user.getId()));
+        }
+        return user;
+    }
+
+    @Override
+    public User getByEmail(String email) {
+//        return jdbcTemplate.queryForObject("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
+        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE email=?", ROW_MAPPER, email);
+        User user = DataAccessUtils.singleResult(users);
+        if (user != null) {
+            user.setRoles(getRoles(user.getId()));
+        }
+        return user;
+    }
+
+    private Set<Role> getRoles(int userId) {
+        List<Role> roles = jdbcTemplate.query(
+                SELECT_ROLES_BY_USER_ID,
+                (rs, rowNum) -> Role.valueOf(rs.getString("role")),
+                userId
+        );
+        return roles.isEmpty() ? EnumSet.noneOf(Role.class) : EnumSet.copyOf(roles);
+    }
+
+    @Override
+    public List<User> getAll() {
+        List<User> users = jdbcTemplate.query("SELECT * FROM users ORDER BY name, email", ROW_MAPPER);
+        Map<Integer, Set<Role>> rolesMap = getAllRolesMap();
+
+        for (User user : users) {
+            user.setRoles(rolesMap.getOrDefault(user.getId(), EnumSet.noneOf(Role.class)));
+        }
+
+        return users;
+    }
+
+    private Map<Integer, Set<Role>> getAllRolesMap() {
+        Map<Integer, Set<Role>> result = new HashMap<>();
+
+        jdbcTemplate.query(SELECT_ALL_ROLES, rs -> {
+            int userId = rs.getInt("user_id");
+            Role role = Role.valueOf(rs.getString("role"));
+
+            result.computeIfAbsent(userId, id -> EnumSet.noneOf(Role.class)).add(role);
+        });
+
+        return result;
     }
 }

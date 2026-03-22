@@ -12,8 +12,7 @@ public class ValidationUtil {
     private ValidationUtil() {
     }
 
-    private static final ValidatorFactory VALIDATOR_FACTORY = Validation.buildDefaultValidatorFactory();
-    private static final Validator VALIDATOR = VALIDATOR_FACTORY.getValidator();
+    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
 
     public static <T> void validate(T bean) {
         Set<ConstraintViolation<T>> violations = VALIDATOR.validate(bean);
