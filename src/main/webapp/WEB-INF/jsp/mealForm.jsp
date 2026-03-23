@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-<c:set var="titleCode" value="meal.title"/>
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
 <body>

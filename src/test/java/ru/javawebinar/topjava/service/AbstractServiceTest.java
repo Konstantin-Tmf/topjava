@@ -17,9 +17,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ContextConfiguration({
-        "classpath:spring/spring-test-app.xml",
+        "classpath:spring/spring-app.xml",
+        "classpath:spring/spring-test-cache.xml",
         "classpath:spring/spring-db.xml",
-        "classpath:spring/spring-test-db.xml"
+        "classpath:spring/spring-test-hibernate-cache.xml"
 })
 @RunWith(SpringRunner.class)
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))

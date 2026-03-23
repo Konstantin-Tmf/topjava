@@ -3,7 +3,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<c:set var="titleCode" value="meal.title"/>
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
 <body>
@@ -11,7 +10,7 @@
     <jsp:include page="fragments/bodyHeader.jsp"/>
 
     <h2><spring:message code="meal.title"/></h2>
-    <form method="get" action="meals/filter">
+    <form method="get" action="<c:url value='/meals/filter'/>">
         <dl>
             <dt><spring:message code="meal.fromDate"/>:</dt>
             <dd><input type="date" name="startDate" value="${param.startDate}"></dd>
@@ -31,7 +30,7 @@
         <button type="submit"><spring:message code="common.filter"/></button>
     </form>
     <hr/>
-    <a href="meals/create"><spring:message code="meal.add"/></a>
+    <a href="<c:url value='/meals/create'/>"><spring:message code="meal.add"/></a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
@@ -54,8 +53,8 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
-                <td><a href="meals/update?id=${meal.id}"><spring:message code="common.update"/></a></td>
-                <td><a href="meals/delete?id=${meal.id}"><spring:message code="common.delete"/></a></td>
+                <td><a href="<c:url value='/meals/update?id=${meal.id}'/>"><spring:message code="common.update"/></a></td>
+                <td><a href="<c:url value='/meals/delete?id=${meal.id}'/>"><spring:message code="common.delete"/></a></td>
             </tr>
         </c:forEach>
     </table>

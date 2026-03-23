@@ -8,7 +8,7 @@
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <br>
 <section>
-    <form method="post" action="users">
+    <form method="post" action="<c:url value='/users'/>">
         <spring:message code="app.login"/>: <select name="userId">
         <option value="100000" selected>User</option>
         <option value="100001">Admin</option>
