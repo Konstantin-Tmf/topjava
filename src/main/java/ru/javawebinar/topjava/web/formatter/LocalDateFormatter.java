@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.web.formatter;
 
 import org.springframework.format.Formatter;
-import org.springframework.util.StringUtils;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -13,11 +12,11 @@ public class LocalDateFormatter implements Formatter<LocalDate> {
 
     @Override
     public LocalDate parse(String text, Locale locale) throws ParseException {
-        return StringUtils.hasLength(text) ? LocalDate.parse(text, FORMATTER) : null;
+        return LocalDate.parse(text, FORMATTER);
     }
 
     @Override
     public String print(LocalDate object, Locale locale) {
-        return object != null ? object.format(FORMATTER) : "";
+        return object.format(FORMATTER);
     }
 }
