@@ -12,6 +12,11 @@ import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
+import java.time.LocalTime;
+
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
+import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 
 @Controller
 public class RootController {
@@ -45,10 +50,23 @@ public class RootController {
     }
 
     @GetMapping("/meals")
-    public String getMeals(Model model) {
-        log.info("meals");
-        model.addAttribute("meals",
-                MealsUtil.getTos(mealService.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay()));
+    public String getMeals(HttpServletRequest request, Model model) {
+        LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
+        LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
+        LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
+        LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
+        log.info("meals dates({} - {}) time({} - {})", startDate, endDate, startTime, endTime);
+
+        updateMealsModel(model, startDate, startTime, endDate, endTime);
         return "meals";
+    }
+
+    private void updateMealsModel(Model model, LocalDate startDate, LocalTime startTime,
+                                  LocalDate endDate, LocalTime endTime) {
+        model.addAttribute("meals", MealsUtil.getFilteredTos(
+                mealService.getBetweenInclusive(startDate, endDate, SecurityUtil.authUserId()),
+                SecurityUtil.authUserCaloriesPerDay(),
+                startTime,
+                endTime));
     }
 }
