@@ -23,10 +23,7 @@ tr[data-meal-excess="true"] {
     color: red;
 }
 
-tr[data-user-enabled="false"] {
-    color: #7c7c7c;
-}
-
+tr[data-user-enabled="false"],
 tr[data-user-enabled="false"] a {
     color: #7c7c7c;
 }
