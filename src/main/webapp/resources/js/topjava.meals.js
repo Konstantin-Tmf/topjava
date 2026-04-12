@@ -1,5 +1,46 @@
 const mealAjaxUrl = "profile/meals/";
 
+function formatDateTime(dateTime) {
+    return dateTime.replace("T", " ").substring(0, 16);
+}
+
+function convertDateTime(data) {
+    if (Array.isArray(data)) {
+        data.forEach(convertDateTime);
+    } else if (data && data.dateTime) {
+        data.dateTime = formatDateTime(data.dateTime);
+    }
+    return data;
+}
+
+function initDatetimePickers() {
+    $.datetimepicker.setLocale(i18n["datetimepickerLocale"]);
+    $("#startDate,#endDate").datetimepicker({
+        timepicker: false,
+        format: "Y-m-d"
+    });
+    $("#startTime,#endTime").datetimepicker({
+        datepicker: false,
+        format: "H:i"
+    });
+    $("#dateTime").datetimepicker({
+        format: "Y-m-d H:i"
+    });
+}
+
+function initAjaxDateTimeConverter() {
+    $.ajaxSetup({
+        converters: {
+            "text json": function (json) {
+                if (!json) {
+                    return null;
+                }
+                return convertDateTime(JSON.parse(json));
+            }
+        }
+    });
+}
+
 // https://stackoverflow.com/a/5064235/548473
 const ctx = {
     ajaxUrl: mealAjaxUrl,
@@ -18,13 +59,26 @@ function clearFilter() {
 }
 
 $(function () {
+    initDatetimePickers();
+    initAjaxDateTimeConverter();
+
     makeEditable(
         $("#datatable").DataTable({
+            "ajax": {
+                "url": mealAjaxUrl,
+                "dataSrc": ""
+            },
             "paging": false,
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime"
+                    "data": "dateTime",
+                    "render": function (date, type, row) {
+                        if (type === "display") {
+                            return formatDateTime(date);
+                        }
+                        return date;
+                    }
                 },
                 {
                     "data": "description"
@@ -33,12 +87,14 @@ $(function () {
                     "data": "calories"
                 },
                 {
-                    "defaultContent": "Edit",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderEditBtn
                 },
                 {
-                    "defaultContent": "Delete",
-                    "orderable": false
+                    "orderable": false,
+                    "defaultContent": "",
+                    "render": renderDeleteBtn
                 }
             ],
             "order": [
@@ -46,7 +102,10 @@ $(function () {
                     0,
                     "desc"
                 ]
-            ]
+            ],
+            "createdRow": function (row, data, dataIndex) {
+                $(row).attr("data-meal-excess", String(data.excess));
+            }
         })
     );
 });
