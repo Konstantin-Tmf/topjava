@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.util;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import ru.javawebinar.topjava.HasId;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
@@ -30,10 +31,11 @@ public class ValidationUtil {
         }
     }
 
-    public static String getErrorFieldsMessage(BindingResult result) {
-        return result.getFieldErrors().stream()
+    public static ResponseEntity<String> getErrorFieldsMessage(BindingResult result) {
+        String errorFieldsMessage = result.getFieldErrors().stream()
                 .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
                 .collect(Collectors.joining("<br>"));
+        return ResponseEntity.unprocessableEntity().body(errorFieldsMessage);
     }
 
     public static <T> T checkNotFound(T object, int id) {

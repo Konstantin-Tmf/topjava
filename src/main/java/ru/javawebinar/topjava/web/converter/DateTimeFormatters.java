@@ -41,7 +41,7 @@ public class DateTimeFormatters {
 
         @Override
         public LocalDateTime parse(String text, Locale locale) {
-            return text.contains("T") ? LocalDateTime.parse(text) : LocalDateTime.parse(text, DATE_TIME_FORMATTER);
+            return LocalDateTime.parse(text, DATE_TIME_FORMATTER);
         }
 
         @Override

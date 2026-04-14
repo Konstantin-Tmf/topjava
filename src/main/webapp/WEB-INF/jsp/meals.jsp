@@ -69,7 +69,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modalTitle"><spring:message code="meal.add"/></h4>
+                <h4 class="modal-title" id="modalTitle"></h4>
                 <button type="button" class="close" data-dismiss="modal" onclick="closeNoty()">&times;</button>
             </div>
             <div class="modal-body">
@@ -111,10 +111,10 @@
 <jsp:include page="fragments/footer.jsp"/>
 </body>
 <script type="text/javascript">
-    const i18n = {};
-    i18n["addTitle"] = '<spring:message code="meal.add"/>';
-    i18n["editTitle"] = '<spring:message code="meal.edit"/>';
-    i18n["datetimepickerLocale"] = "${pageContext.response.locale.language}";
-    <jsp:include page="fragments/i18n.jsp"/>
+    <jsp:include page="fragments/i18n.jsp">
+        <jsp:param name="addTitle" value="meal.add"/>
+        <jsp:param name="editTitle" value="meal.edit"/>
+        <jsp:param name="datetimepickerLocale" value="${pageContext.response.locale.language}"/>
+    </jsp:include>
 </script>
 </html>
