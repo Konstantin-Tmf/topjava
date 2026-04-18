@@ -1,6 +1,4 @@
 const mealAjaxUrl = "profile/meals/";
-let lastDateFilterInput;
-let lastTimeFilterInput;
 
 function formatDateTime(dateTime) {
     return dateTime.replace("T", " ").substring(0, 16);
@@ -15,35 +13,23 @@ function convertDateTime(data) {
     return data;
 }
 
-function parseFilterDate(value) {
-    const parts = value.split("-");
-    if (parts.length !== 3) {
-        return null;
-    }
-    const year = Number(parts[0]);
-    const month = Number(parts[1]);
-    const day = Number(parts[2]);
-    return year && month && day ? new Date(year, month - 1, day).getTime() : null;
-}
-
-function parseFilterTime(value) {
-    const parts = value.split(":");
+function getMaxStartTime(endTimeValue) {
+    const parts = endTimeValue.split(":");
     if (parts.length < 2) {
-        return null;
+        return false;
     }
     const hours = Number(parts[0]);
     const minutes = Number(parts[1]);
-    return hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60 ? hours * 60 + minutes : null;
-}
-
-function fixEndBeforeStart(startInput, endInput, startChanged, parseValue) {
-    const startValue = parseValue(startInput.val());
-    const endValue = parseValue(endInput.val());
-    if (startValue !== null && endValue !== null && endValue < startValue) {
-        const changedInput = startChanged ? startInput : endInput;
-        const pairedInput = startChanged ? endInput : startInput;
-        pairedInput.val(changedInput.val());
+    const totalMinutes = hours * 60 + minutes;
+    if (!Number.isInteger(hours) || !Number.isInteger(minutes) ||
+        hours < 0 || hours > 23 || minutes < 0 || minutes > 59 ||
+        totalMinutes === 23 * 60 + 59) {
+        return false;
     }
+    const maxStartMinutes = totalMinutes + 1;
+    const maxStartHours = Math.floor(maxStartMinutes / 60);
+    const maxStartMinute = maxStartMinutes % 60;
+    return `${String(maxStartHours).padStart(2, "0")}:${String(maxStartMinute).padStart(2, "0")}`;
 }
 
 function initDatetimePickers() {
@@ -53,37 +39,65 @@ function initDatetimePickers() {
     const startTime = $("#startTime");
     const endTime = $("#endTime");
 
-    startDate.add(endDate).on("focus input change", function () {
-        lastDateFilterInput = this.id;
-    });
-    startTime.add(endTime).on("focus input change", function () {
-        lastTimeFilterInput = this.id;
-    });
-
     startDate.datetimepicker({
         timepicker: false,
-        format: "Y-m-d"
+        format: "Y-m-d",
+        onShow: function () {
+            this.setOptions({
+                maxDate: endDate.val() || false
+            });
+        },
+        onChangeDateTime: function () {
+            endDate.datetimepicker("setOptions", {
+                minDate: startDate.val() || false
+            });
+        }
     });
     endDate.datetimepicker({
         timepicker: false,
-        format: "Y-m-d"
+        format: "Y-m-d",
+        onShow: function () {
+            this.setOptions({
+                minDate: startDate.val() || false
+            });
+        },
+        onChangeDateTime: function () {
+            startDate.datetimepicker("setOptions", {
+                maxDate: endDate.val() || false
+            });
+        }
     });
     startTime.datetimepicker({
         datepicker: false,
-        format: "H:i"
+        format: "H:i",
+        onShow: function () {
+            this.setOptions({
+                maxTime: getMaxStartTime(endTime.val())
+            });
+        },
+        onChangeDateTime: function () {
+            endTime.datetimepicker("setOptions", {
+                minTime: startTime.val() || false
+            });
+        }
     });
     endTime.datetimepicker({
         datepicker: false,
-        format: "H:i"
+        format: "H:i",
+        onShow: function () {
+            this.setOptions({
+                minTime: startTime.val() || false
+            });
+        },
+        onChangeDateTime: function () {
+            startTime.datetimepicker("setOptions", {
+                maxTime: getMaxStartTime(endTime.val())
+            });
+        }
     });
     $("#dateTime").datetimepicker({
         format: "Y-m-d H:i"
     });
-}
-
-function fixFilterRanges() {
-    fixEndBeforeStart($("#startDate"), $("#endDate"), lastDateFilterInput !== "endDate", parseFilterDate);
-    fixEndBeforeStart($("#startTime"), $("#endTime"), lastTimeFilterInput !== "endTime", parseFilterTime);
 }
 
 function initAjaxDateTimeConverter() {
@@ -103,7 +117,6 @@ function initAjaxDateTimeConverter() {
 const ctx = {
     ajaxUrl: mealAjaxUrl,
     updateTable: function () {
-        fixFilterRanges();
         $.ajax({
             type: "GET",
             url: mealAjaxUrl + "filter",
@@ -114,8 +127,6 @@ const ctx = {
 
 function clearFilter() {
     $("#filter")[0].reset();
-    lastDateFilterInput = undefined;
-    lastTimeFilterInput = undefined;
     $.get(mealAjaxUrl, updateTableByData);
 }
 
